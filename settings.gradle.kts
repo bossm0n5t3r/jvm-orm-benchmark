@@ -1,4 +1,11 @@
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
+
 rootProject.name = "jvm-orm-benchmark"
+
+include(
+    ":jpa-app",
+    ":exposed-app",
+    ":benchmark-app",
+)

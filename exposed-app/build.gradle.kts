@@ -1,3 +1,5 @@
+// Module: exposed-app
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktlint)
@@ -11,6 +13,7 @@ repositories {
 }
 
 dependencies {
+    // Add Exposed and JDBC dependencies later as needed
     testImplementation(libs.kotlin.test)
 }
 
