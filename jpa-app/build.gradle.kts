@@ -13,7 +13,17 @@ repositories {
 }
 
 dependencies {
-    // Add JPA/Hibernate dependencies later as needed
+    // JPA / Hibernate
+    implementation(libs.hibernate.core)
+    implementation(libs.jakarta.persistence.api)
+
+    // Connection pool & DB (PostgreSQL)
+    implementation(libs.hikari)
+    runtimeOnly(libs.postgresql)
+
+    // Logging (Hibernate uses SLF4J)
+    runtimeOnly(libs.slf4j.simple)
+
     testImplementation(libs.kotlin.test)
 }
 

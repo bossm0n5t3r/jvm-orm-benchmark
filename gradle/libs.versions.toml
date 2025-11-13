@@ -3,9 +3,19 @@ kotlin = "2.2.21"
 ktlint-plugin = "14.0.1"
 pinterest-ktlint = "1.7.1"
 jdk = "21"
+hibernate = "7.1.7.Final"
+jakarta-persistence = "3.2.0"
+hikari = "7.0.2"
+slf4j = "2.0.17"
+postgresql = "42.7.8"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+hibernate-core = { module = "org.hibernate.orm:hibernate-core", version.ref = "hibernate" }
+jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence" }
+hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
