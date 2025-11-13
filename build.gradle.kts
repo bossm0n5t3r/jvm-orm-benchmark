@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktlint)
 }
 
 group = "me.bossm0n5t3r"
@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.test {
@@ -19,9 +19,16 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(
+        libs.versions.jdk
+            .get()
+            .toInt(),
+    )
 }
 
 ktlint {
-    version.set("1.7.1")
+    version.set(
+        libs.versions.pinterest.ktlint
+            .get(),
+    )
 }
