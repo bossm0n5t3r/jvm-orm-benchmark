@@ -26,7 +26,6 @@ object HibernateUtil {
                 .applySetting(AvailableSettings.STATEMENT_BATCH_SIZE, 1000)
                 .applySetting(AvailableSettings.ORDER_INSERTS, true)
                 .applySetting(AvailableSettings.ORDER_UPDATES, true)
-                .applySetting(AvailableSettings.BATCH_VERSIONED_DATA, true)
 
         val registry = registryBuilder.build()
 
