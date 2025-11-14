@@ -15,7 +15,7 @@ class UserEntity(
     var username: String,
     @Column(nullable = false, length = 200)
     var email: String,
-    @Column(nullable = false)
+    @Column(nullable = false, name = "created_at")
     var createdAt: Instant = Instant.now(),
 ) {
     @Id
