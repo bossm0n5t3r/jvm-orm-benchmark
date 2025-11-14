@@ -51,18 +51,21 @@ allOpen {
 }
 
 benchmark {
+    targets {
+        register("main") {
+            this as JvmBenchmarkTarget
+            jmhVersion = "1.37"
+        }
+    }
     configurations {
         named("main") {
-            warmups = 20
+            warmups = 10
             iterations = 10
             iterationTime = 3
-            iterationTimeUnit = "s"
-        }
-        targets {
-            register("main") {
-                this as JvmBenchmarkTarget
-                jmhVersion = "1.37"
-            }
+            iterationTimeUnit = "ns"
+            mode = "AverageTime"
+            reportFormat = "csv"
+            reportsDir = "$rootDir/benchmark-reports"
         }
     }
 }
