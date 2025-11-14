@@ -5,6 +5,7 @@ plugins {
 rootProject.name = "jvm-orm-benchmark"
 
 include(
+    ":common",
     ":jpa-app",
     ":exposed-app",
     ":benchmark-app",
