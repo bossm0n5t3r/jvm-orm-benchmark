@@ -8,6 +8,7 @@ jakarta-persistence = "3.2.0"
 hikari = "7.0.2"
 slf4j = "2.0.17"
 postgresql = "42.7.8"
+exposed = "1.0.0-rc-3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -16,6 +17,9 @@ jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-ap
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

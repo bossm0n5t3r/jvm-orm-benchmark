@@ -13,7 +13,18 @@ repositories {
 }
 
 dependencies {
-    // Add Exposed and JDBC dependencies later as needed
+    // Exposed ORM (from version catalog)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.kotlin.datetime)
+
+    // Connection pool & Driver (reuse versions from version catalog)
+    implementation(libs.hikari)
+    implementation(libs.postgresql)
+
+    // Simple logging
+    runtimeOnly(libs.slf4j.simple)
+
     testImplementation(libs.kotlin.test)
 }
 
