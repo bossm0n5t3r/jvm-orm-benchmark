@@ -1,12 +1,10 @@
 package me.bossm0n5t3r.jpa
 
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
+import me.bossm0n5t3r.common.DatabaseConfig
 import org.hibernate.SessionFactory
 import org.hibernate.boot.MetadataSources
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder
 import org.hibernate.cfg.AvailableSettings
-import javax.sql.DataSource
 
 object HibernateUtil {
     val sessionFactory: SessionFactory by lazy { buildSessionFactory() }
@@ -38,53 +36,7 @@ object HibernateUtil {
             throw RuntimeException("Failed to build SessionFactory", e)
         }
 
-    private fun configureDataSource(): DataSource {
-        // 환경 변수 또는 시스템 프로퍼티로 PostgreSQL 접속 정보를 받습니다.
-        // 우선순위: System.getProperty > System.getenv > 기본값
-        fun prop(
-            name: String,
-            env: String,
-            default: String,
-        ): String =
-            System.getProperty(name)
-                ?: System.getenv(env)
-                ?: default
-
-        val url =
-            prop(
-                name = "pg.url",
-                env = "PG_URL",
-                default = "jdbc:postgresql://localhost:5432/orm_bench?reWriteBatchedInserts=true",
-            )
-        val user =
-            prop(
-                name = "pg.user",
-                env = "PG_USER",
-                default = "postgres",
-            )
-        val pass =
-            prop(
-                name = "pg.password",
-                env = "PG_PASSWORD",
-                default = "postgres",
-            )
-
-        val config =
-            HikariConfig().apply {
-                jdbcUrl = url
-                driverClassName = "org.postgresql.Driver"
-                username = user
-                password = pass
-                maximumPoolSize = 8
-                minimumIdle = 2
-                isAutoCommit = false
-                // 성능 최적화 옵션
-                connectionTimeout = 30000
-                idleTimeout = 600000
-                maxLifetime = 1800000
-            }
-        return HikariDataSource(config)
-    }
+    private fun configureDataSource() = DatabaseConfig.createDataSource("JpaHikariPool")
 
     /**
      * SessionFactory와 DataSource를 정리합니다.

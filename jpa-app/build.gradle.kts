@@ -13,12 +13,14 @@ repositories {
 }
 
 dependencies {
+    // Common module
+    implementation(project(":common"))
+
     // JPA / Hibernate
     implementation(libs.hibernate.core)
     implementation(libs.jakarta.persistence.api)
 
-    // Connection pool & DB (PostgreSQL)
-    implementation(libs.hikari)
+    // DB (PostgreSQL)
     runtimeOnly(libs.postgresql)
 
     // Logging (Hibernate uses SLF4J)

@@ -13,13 +13,15 @@ repositories {
 }
 
 dependencies {
+    // Common module
+    implementation(project(":common"))
+
     // Exposed ORM (from version catalog)
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.kotlin.datetime)
 
-    // Connection pool & Driver (reuse versions from version catalog)
-    implementation(libs.hikari)
+    // Driver
     implementation(libs.postgresql)
 
     // Simple logging
