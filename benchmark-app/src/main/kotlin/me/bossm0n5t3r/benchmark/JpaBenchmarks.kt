@@ -6,17 +6,19 @@ import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import kotlinx.benchmark.TearDown
+import me.bossm0n5t3r.benchmark.Constants.DEFAULT_BATCH_SIZE
+import me.bossm0n5t3r.benchmark.Constants.DEFAULT_ROWS
 import me.bossm0n5t3r.jpa.JpaApi
 
 @State(Scope.Benchmark)
 class JpaBenchmarks {
     private val api = JpaApi()
 
-    @Param("1000", "10000")
-    private var rows: Int = 1000
+    @Param(DEFAULT_ROWS.toString())
+    private var rows: Int = 0
 
-    @Param("500", "1000", "5000")
-    private var batchSize: Int = 1000
+    @Param(DEFAULT_BATCH_SIZE.toString())
+    private var batchSize: Int = 0
 
     @Setup
     fun setup() {
