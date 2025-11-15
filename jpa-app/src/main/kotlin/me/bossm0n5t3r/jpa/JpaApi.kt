@@ -15,7 +15,7 @@ class JpaApi {
      */
     fun insertUsers(
         count: Int,
-        batchSize: Int = 1_000,
+        batchSize: Int,
     ): Int {
         require(count > 0) { "count must be > 0" }
         require(batchSize > 0) { "batchSize must be > 0" }
