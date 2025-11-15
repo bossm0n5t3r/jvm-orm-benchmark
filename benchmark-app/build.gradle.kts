@@ -118,17 +118,29 @@ val updateBenchmarkDoc by tasks.registering {
                 dt.format(outputFormatter)
             }
 
-        val header =
-            buildString {
-                appendLine(
-                    """
-                    | Timestamp | Benchmark | Benchmark Class | batchSize | rows | Score (s/op) | Threads | Forks | JDK | Warmup Iters | Warmup Time | Warmup Batch |
-                    |-----------|-----------|-----------------|-----------|------|--------------|---------|-------|-----|--------------|-------------|--------------|
-                    """.trimIndent(),
-                )
-            }
+        val headerHtml =
+            """
+            <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Benchmark</th>
+                <th>Benchmark Class</th>
+                <th>batchSize</th>
+                <th>rows</th>
+                <th>Score (s/op)</th>
+                <th>Threads</th>
+                <th>Forks</th>
+                <th>JDK</th>
+                <th>Warmup Iters</th>
+                <th>Warmup Time</th>
+                <th>Warmup Batch</th>
+              </tr>
+            </thead>
+            <tbody>
+            """.trimIndent()
 
-        val rows =
+        val rowsHtml =
             parsed.joinToString("\n") { bm ->
                 val fullName = bm["benchmark"] as? String ?: "unknown"
 
@@ -152,11 +164,30 @@ val updateBenchmarkDoc by tasks.registering {
                 val warmupBatchSize = bm["warmupBatchSize"] ?: "-"
 
                 """
-                | $timestamp | $methodName | $classSimpleName | $batchSize | $rowsParam | $score | $threads | $forks | $jdkVersion | $warmupIterations | $warmupTime | $warmupBatchSize |
-                """.trim()
+                <tr>
+                  <td>$timestamp</td>
+                  <td>$methodName</td>
+                  <td>$classSimpleName</td>
+                  <td>$batchSize</td>
+                  <td>$rowsParam</td>
+                  <td>$score</td>
+                  <td>$threads</td>
+                  <td>$forks</td>
+                  <td>$jdkVersion</td>
+                  <td>$warmupIterations</td>
+                  <td>$warmupTime</td>
+                  <td>$warmupBatchSize</td>
+                </tr>
+                """.trimIndent()
             }
 
-        val tableMarkdown = header + rows + "\n"
+        val footerHtml =
+            """
+            </tbody>
+            </table>
+            """.trimIndent()
+
+        val tableHtml = headerHtml + "\n" + rowsHtml + "\n" + footerHtml + "\n"
 
         val docFile = benchmarkDoc.asFile
         if (!docFile.exists()) {
@@ -186,14 +217,14 @@ val updateBenchmarkDoc by tasks.registering {
                 append(before)
                 appendLine()
                 appendLine()
-                append(tableMarkdown.trimEnd())
+                append(tableHtml.trimEnd())
                 appendLine()
                 append(after)
             }
 
         docFile.writeText(newContent)
 
-        logger.lifecycle("Updated benchmark doc with timestamp from folder: ${docFile.path}")
+        logger.lifecycle("Updated benchmark doc with HTML table: ${docFile.path}")
 
         val rootBenchmarkReports = File(rootProject.projectDir, "benchmark-reports")
 
