@@ -135,7 +135,7 @@ export PG_PASSWORD="postgres"
 
 ## Benchmark Results
 
-Latest benchmark results are maintained in [`docs/benchmark.md`](docs/benchmark.md).
+Latest benchmark results are maintained in [`docs/benchmark.md`](docs/benchmark).
 
 The results table includes:
 - Timestamp
