@@ -6,7 +6,6 @@ import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
-import kotlin.math.min
 
 class ExposedApi {
     init {
@@ -25,8 +24,8 @@ class ExposedApi {
      * @param batchSize JDBC/Exposed 배치 크기. 너무 크면 메모리 사용량이 늘어납니다.
      */
     fun insertBulk(
-        count: Int = 1_000_000,
-        batchSize: Int = 10_000,
+        count: Int,
+        batchSize: Int,
     ) {
         require(count > 0) { "count must be > 0" }
         require(batchSize in 1..100_000) { "batchSize must be between 1 and 100_000" }
@@ -37,7 +36,7 @@ class ExposedApi {
         // 트랜잭션 경계는 배치 크기 단위로 나눠 메모리 사용을 제한합니다.
         while (inserted < count) {
             val remaining = count - inserted
-            val chunk = min(remaining, batchSize)
+            val chunk = minOf(remaining, batchSize)
 
             transaction {
                 // 성능을 위해 auto-commit은 풀(Hikari)에서 false, 여기선 트랜잭션 커밋으로 처리
