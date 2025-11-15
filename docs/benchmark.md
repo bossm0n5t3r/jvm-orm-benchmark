@@ -4,8 +4,8 @@
 
 <!-- benchmark-table:start -->
 
-| Benchmark | Benchmark Class | batchSize | rows | Score (s/op) | Threads | Forks | JDK | Warmup Iters | Warmup Time | Warmup Batch |
-|-----------|-----------------|-----------|------|--------------|---------|-------|-----|--------------|-------------|--------------|
-| insertBulk | ExposedBenchmarks | 10000 | 100000 | 53.194047042 | 1 | 1 | 21.0.9 | 1 | 3 ns | 1 |
-| insertUsers | JpaBenchmarks | 10000 | 100000 | 103.185657708 | 1 | 1 | 21.0.9 | 1 | 3 ns | 1 |
+| Timestamp | Benchmark | Benchmark Class | batchSize | rows | Score (s/op) | Threads | Forks | JDK | Warmup Iters | Warmup Time | Warmup Batch |
+|-----------|-----------|-----------------|-----------|------|--------------|---------|-------|-----|--------------|-------------|--------------|
+| 2025-11-16 00:13 | insertBulk | ExposedBenchmarks | 10000 | 100000 | 53.259007625 | 1 | 1 | 21.0.9 | 1 | 3 ns | 1 |
+| 2025-11-16 00:13 | insertUsers | JpaBenchmarks | 10000 | 100000 | 102.965185125 | 1 | 1 | 21.0.9 | 1 | 3 ns | 1 |
 <!-- benchmark-table:end -->
