@@ -60,8 +60,8 @@ benchmark {
     }
     configurations {
         named("main") {
-            warmups = 10
-            iterations = 10
+            warmups = 1
+            iterations = 1
             iterationTime = 3
             iterationTimeUnit = "ns"
             mode = "AverageTime"
@@ -71,7 +71,6 @@ benchmark {
     }
 }
 
-// ★ 루트 프로젝트 기준 경로
 val benchmarkResultsDir = rootProject.layout.projectDirectory.dir("benchmark-reports/main")
 val benchmarkDoc = rootProject.layout.projectDirectory.file("docs/benchmark.md")
 
@@ -85,7 +84,6 @@ val updateBenchmarkDoc by tasks.registering {
             return@doLast
         }
 
-        // benchmark-reports/main/**/main.json 찾기
         val reports =
             fileTree(resultsDir) {
                 include("**/main.json")
@@ -102,17 +100,25 @@ val updateBenchmarkDoc by tasks.registering {
         @Suppress("UNCHECKED_CAST")
         val parsed = JsonSlurper().parse(reportFile) as List<Map<String, Any?>>
 
-        // 1) 테이블 생성
         val header =
             buildString {
-                appendLine("| Benchmark | batchSize | rows | Score (s/op) | Error | 95% CI |")
-                appendLine("|-----------|-----------|------|--------------|-------|--------|")
+                appendLine(
+                    """
+                    | Benchmark | Benchmark Class | batchSize | rows | Score (s/op) | Threads | Forks | JDK | Warmup Iters | Warmup Time | Warmup Batch |
+                    |-----------|-----------------|-----------|------|--------------|---------|-------|-----|--------------|-------------|--------------|
+                    """.trimIndent(),
+                )
             }
 
         val rows =
             parsed.joinToString("\n") { bm ->
                 val fullName = bm["benchmark"] as? String ?: "unknown"
-                val simpleName = fullName.substringAfterLast('.')
+
+                val methodName = fullName.substringAfterLast('.')
+
+                val classFqName = fullName.substringBeforeLast('.', missingDelimiterValue = "unknown")
+
+                val classSimpleName = classFqName.substringAfterLast('.', missingDelimiterValue = classFqName)
 
                 val params = bm["params"] as? Map<*, *> ?: emptyMap<Any, Any>()
                 val batchSize = params["batchSize"] ?: "-"
@@ -120,19 +126,22 @@ val updateBenchmarkDoc by tasks.registering {
 
                 val primary = bm["primaryMetric"] as? Map<*, *>
                 val score = primary?.get("score") ?: "-"
-                val error = primary?.get("scoreError") ?: "-"
 
-                val confidence = primary?.get("scoreConfidence") as? List<*>
-                val ciLow = confidence?.getOrNull(0)
-                val ciHigh = confidence?.getOrNull(1)
-                val ci = if (ciLow != null && ciHigh != null) "$ciLow ~ $ciHigh" else "-"
+                val threads = bm["threads"] ?: "-"
+                val forks = bm["forks"] ?: "-"
+                val jdkVersion = bm["jdkVersion"] ?: "-"
 
-                "| $simpleName | $batchSize | $rowsParam | $score | $error | $ci |"
+                val warmupIterations = bm["warmupIterations"] ?: "-"
+                val warmupTime = bm["warmupTime"] ?: "-"
+                val warmupBatchSize = bm["warmupBatchSize"] ?: "-"
+
+                """
+                | $methodName | $classSimpleName | $batchSize | $rowsParam | $score | $threads | $forks | $jdkVersion | $warmupIterations | $warmupTime | $warmupBatchSize |
+                """.trim()
             }
 
         val tableMarkdown = header + rows + "\n"
 
-        // 2) 기존 md 에서 마커 사이 영역 정확히 잡기
         val docFile = benchmarkDoc.asFile
         if (!docFile.exists()) {
             throw GradleException("Benchmark doc not found: ${docFile.path}")
@@ -150,15 +159,12 @@ val updateBenchmarkDoc by tasks.registering {
             throw GradleException("benchmark.md 에 $startMarker / $endMarker 마커를 먼저 넣어주세요.")
         }
 
-        // 마커 바로 뒤 위치 (내용 시작 위치)
         val contentStart = startIndex + startMarker.length
-        // endMarker 직전까지가 “교체 대상” 영역
         val contentEnd = endIndex
 
-        val before = original.substring(0, contentStart)
-        val after = original.substring(contentEnd) // endMarker 포함 뒷부분
+        val before = original.take(contentStart)
+        val after = original.substring(contentEnd)
 
-        // 3) 마커 사이 내용을 싹 지우고 새 테이블만 넣기
         val newContent =
             buildString {
                 append(before)
@@ -172,10 +178,23 @@ val updateBenchmarkDoc by tasks.registering {
         docFile.writeText(newContent)
 
         logger.lifecycle("Updated benchmark doc: ${docFile.path}")
+
+        // -----------------------------------------------------
+        // 마지막에 루트의 benchmark-reports 폴더 삭제 처리 추가
+        // -----------------------------------------------------
+        val rootBenchmarkReports = File(rootProject.projectDir, "benchmark-reports")
+
+        if (rootBenchmarkReports.exists()) {
+            val deleted = rootBenchmarkReports.deleteRecursively()
+            if (deleted) {
+                logger.lifecycle("Deleted benchmark-reports directory: ${rootBenchmarkReports.path}")
+            } else {
+                logger.warn("Failed to delete benchmark-reports directory: ${rootBenchmarkReports.path}")
+            }
+        }
     }
 }
 
-// benchmark 끝나면 md 자동 갱신
 tasks.matching { it.name == "benchmark" }.configureEach {
     finalizedBy(updateBenchmarkDoc)
 }
