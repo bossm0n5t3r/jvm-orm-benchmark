@@ -5,10 +5,12 @@ A benchmarking project comparing performance between JPA/Hibernate and Exposed O
 ## Overview
 
 This project provides performance benchmarks for bulk insert operations using two popular ORM frameworks:
+
 - **JPA/Hibernate** - Java Persistence API with Hibernate implementation
 - **Exposed** - Kotlin SQL framework by JetBrains
 
-The benchmarks use [kotlinx-benchmark](https://github.com/Kotlin/kotlinx-benchmark) (backed by JMH) to measure and compare performance metrics.
+The benchmarks use [kotlinx-benchmark](https://github.com/Kotlin/kotlinx-benchmark) (backed by JMH) to measure and
+compare performance metrics.
 
 ## Stack
 
@@ -44,7 +46,8 @@ jvm-orm-benchmark/
 
 ### Module Descriptions
 
-- **benchmark-app**: Contains JMH benchmark classes (`JpaBenchmarks`, `ExposedBenchmarks`) and generates benchmark reports
+- **benchmark-app**: Contains JMH benchmark classes (`JpaBenchmarks`, `ExposedBenchmarks`) and generates benchmark
+  reports
 - **common**: Shared `DatabaseConfig` with HikariCP setup and environment variable handling
 - **jpa-app**: JPA/Hibernate API implementation for database operations
 - **exposed-app**: Exposed framework API implementation for database operations
@@ -58,6 +61,7 @@ docker compose up -d
 ```
 
 This starts a PostgreSQL container with:
+
 - Database: `orm_bench`
 - User: `postgres`
 - Password: `postgres`
@@ -82,6 +86,7 @@ Wait for the health check to pass.
 ```
 
 This command:
+
 1. Executes all benchmark tests
 2. Generates JSON reports in `benchmark-reports/main/`
 3. Automatically updates `docs/benchmark.md` with results
@@ -90,10 +95,12 @@ This command:
 ### Benchmark Configuration
 
 Default benchmark parameters (defined in `Constants.kt`):
+
 - **Rows**: 100,000
 - **Batch Size**: 10,000
 
 Current benchmark settings (in `benchmark-app/build.gradle.kts`):
+
 - Warmup iterations: 1
 - Iterations: 1
 - Iteration time: 3 ns
@@ -104,11 +111,11 @@ Current benchmark settings (in `benchmark-app/build.gradle.kts`):
 
 The application supports the following environment variables for database configuration:
 
-| Environment Variable | System Property | Default Value |
-|---------------------|----------------|---------------|
-| `PG_URL` | `pg.url` | `jdbc:postgresql://localhost:5432/orm_bench?reWriteBatchedInserts=true` |
-| `PG_USER` | `pg.user` | `postgres` |
-| `PG_PASSWORD` | `pg.password` | `postgres` |
+| Environment Variable | System Property | Default Value                                                           |
+|----------------------|-----------------|-------------------------------------------------------------------------|
+| `PG_URL`             | `pg.url`        | `jdbc:postgresql://localhost:5432/orm_bench?reWriteBatchedInserts=true` |
+| `PG_USER`            | `pg.user`       | `postgres`                                                              |
+| `PG_PASSWORD`        | `pg.password`   | `postgres`                                                              |
 
 ### Setting Environment Variables
 
@@ -124,20 +131,23 @@ export PG_PASSWORD="postgres"
 
 ## Available Gradle Tasks
 
-| Task | Description |
-|------|-------------|
-| `./gradlew benchmark` | Run all benchmarks and update documentation |
+| Task                           | Description                                    |
+|--------------------------------|------------------------------------------------|
+| `./gradlew benchmark`          | Run all benchmarks and update documentation    |
 | `./gradlew updateBenchmarkDoc` | Update `docs/benchmark.md` with latest results |
-| `./gradlew build` | Build all modules |
-| `./gradlew test` | Run unit tests |
-| `./gradlew ktlintCheck` | Check code style |
-| `./gradlew ktlintFormat` | Format code according to ktlint rules |
+| `./gradlew build`              | Build all modules                              |
+| `./gradlew test`               | Run unit tests                                 |
+| `./gradlew ktlintCheck`        | Check code style                               |
+| `./gradlew ktlintFormat`       | Format code according to ktlint rules          |
 
 ## Benchmark Results
 
-Latest benchmark results are maintained in [`docs/benchmark.md`](docs/benchmark).
+📊 [View Detailed Benchmark Results](https://bossm0n5t3r.github.io/jvm-orm-benchmark/docs/benchmark)
+
+Latest benchmark results are maintained in [`docs/benchmark.md`](docs/benchmark.md).
 
 The results table includes:
+
 - Timestamp
 - Benchmark name
 - Benchmark class
@@ -182,6 +192,7 @@ This project uses ktlint with the official Kotlin code style.
 ## Database Configuration
 
 The project uses HikariCP for connection pooling with the following default settings:
+
 - Maximum pool size: 8
 - Minimum idle connections: 2
 - Connection timeout: 30 seconds
