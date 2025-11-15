@@ -1,5 +1,7 @@
 import groovy.json.JsonSlurper
 import kotlinx.benchmark.gradle.JvmBenchmarkTarget
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 // Module: benchmark-app
 
@@ -100,12 +102,28 @@ val updateBenchmarkDoc by tasks.registering {
         @Suppress("UNCHECKED_CAST")
         val parsed = JsonSlurper().parse(reportFile) as List<Map<String, Any?>>
 
+        val parentDirName = reportFile.parentFile?.name ?: ""
+        val timestamp: String =
+            run {
+                val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss.SSSSSS")
+                val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+
+                val dt =
+                    runCatching {
+                        LocalDateTime.parse(parentDirName, inputFormatter)
+                    }.getOrElse {
+                        LocalDateTime.now()
+                    }
+
+                dt.format(outputFormatter)
+            }
+
         val header =
             buildString {
                 appendLine(
                     """
-                    | Benchmark | Benchmark Class | batchSize | rows | Score (s/op) | Threads | Forks | JDK | Warmup Iters | Warmup Time | Warmup Batch |
-                    |-----------|-----------------|-----------|------|--------------|---------|-------|-----|--------------|-------------|--------------|
+                    | Timestamp | Benchmark | Benchmark Class | batchSize | rows | Score (s/op) | Threads | Forks | JDK | Warmup Iters | Warmup Time | Warmup Batch |
+                    |-----------|-----------|-----------------|-----------|------|--------------|---------|-------|-----|--------------|-------------|--------------|
                     """.trimIndent(),
                 )
             }
@@ -115,10 +133,8 @@ val updateBenchmarkDoc by tasks.registering {
                 val fullName = bm["benchmark"] as? String ?: "unknown"
 
                 val methodName = fullName.substringAfterLast('.')
-
-                val classFqName = fullName.substringBeforeLast('.', missingDelimiterValue = "unknown")
-
-                val classSimpleName = classFqName.substringAfterLast('.', missingDelimiterValue = classFqName)
+                val classFqName = fullName.substringBeforeLast('.', "unknown")
+                val classSimpleName = classFqName.substringAfterLast('.', classFqName)
 
                 val params = bm["params"] as? Map<*, *> ?: emptyMap<Any, Any>()
                 val batchSize = params["batchSize"] ?: "-"
@@ -136,7 +152,7 @@ val updateBenchmarkDoc by tasks.registering {
                 val warmupBatchSize = bm["warmupBatchSize"] ?: "-"
 
                 """
-                | $methodName | $classSimpleName | $batchSize | $rowsParam | $score | $threads | $forks | $jdkVersion | $warmupIterations | $warmupTime | $warmupBatchSize |
+                | $timestamp | $methodName | $classSimpleName | $batchSize | $rowsParam | $score | $threads | $forks | $jdkVersion | $warmupIterations | $warmupTime | $warmupBatchSize |
                 """.trim()
             }
 
@@ -177,11 +193,8 @@ val updateBenchmarkDoc by tasks.registering {
 
         docFile.writeText(newContent)
 
-        logger.lifecycle("Updated benchmark doc: ${docFile.path}")
+        logger.lifecycle("Updated benchmark doc with timestamp from folder: ${docFile.path}")
 
-        // -----------------------------------------------------
-        // 마지막에 루트의 benchmark-reports 폴더 삭제 처리 추가
-        // -----------------------------------------------------
         val rootBenchmarkReports = File(rootProject.projectDir, "benchmark-reports")
 
         if (rootBenchmarkReports.exists()) {
