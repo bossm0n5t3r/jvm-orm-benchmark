@@ -116,6 +116,7 @@ private fun replaceBetween(
 
 val updateBenchmarkDoc by tasks.registering {
     outputs.file(benchmarkDoc)
+    outputs.upToDateWhen { false }
 
     doLast {
         val resultsDir = benchmarkResultsDir.asFile
