@@ -73,8 +73,46 @@ benchmark {
     }
 }
 
-val benchmarkResultsDir = rootProject.layout.projectDirectory.dir("benchmark-reports/main")
-val benchmarkDoc = rootProject.layout.projectDirectory.file("docs/benchmark.md")
+private val libsCatalog =
+    project.extensions
+        .getByType<VersionCatalogsExtension>()
+        .named("libs")
+
+private val hibernateVersion: String = libsCatalog.findVersion("hibernate").get().requiredVersion
+private val exposedVersion: String = libsCatalog.findVersion("exposed").get().requiredVersion
+
+private val benchmarkResultsDir = rootProject.layout.projectDirectory.dir("benchmark-reports/main")
+private val benchmarkDoc = rootProject.layout.projectDirectory.file("docs/benchmark.md")
+
+private fun replaceBetween(
+    source: String,
+    startMarker: String,
+    endMarker: String,
+    newBlock: String,
+): String {
+    val startIndex = source.indexOf(startMarker)
+    val endIndex = source.indexOf(endMarker)
+
+    if (startIndex == -1 || endIndex == -1) {
+        throw GradleException("benchmark.md 에 $startMarker / $endMarker 마커를 먼저 넣어주세요.")
+    }
+
+    val contentStart = startIndex + startMarker.length
+    val contentEnd = endIndex
+
+    val before = source.take(contentStart)
+    val after = source.substring(contentEnd)
+
+    return buildString {
+        append(before)
+        appendLine()
+        appendLine()
+        append(newBlock.trimEnd())
+        appendLine()
+        appendLine()
+        append(after)
+    }
+}
 
 val updateBenchmarkDoc by tasks.registering {
     outputs.file(benchmarkDoc)
@@ -196,35 +234,40 @@ val updateBenchmarkDoc by tasks.registering {
 
         val original = docFile.readText()
 
-        val startMarker = "<!-- benchmark-table:start -->"
-        val endMarker = "<!-- benchmark-table:end -->"
+        val ormStartMarker = "<!-- orm-versions:start -->"
+        val ormEndMarker = "<!-- orm-versions:end -->"
+        val tableStartMarker = "<!-- benchmark-table:start -->"
+        val tableEndMarker = "<!-- benchmark-table:end -->"
 
-        val startIndex = original.indexOf(startMarker)
-        val endIndex = original.indexOf(endMarker)
+        val ormBlockHtml =
+            """
+            <p>
+              JPA (Hibernate): <code>$hibernateVersion</code><br/>
+              Exposed: <code>$exposedVersion</code>
+            </p>
+            """.trimIndent()
 
-        if (startIndex == -1 || endIndex == -1) {
-            throw GradleException("benchmark.md 에 $startMarker / $endMarker 마커를 먼저 넣어주세요.")
-        }
+        var updated =
+            replaceBetween(
+                source = original,
+                startMarker = ormStartMarker,
+                endMarker = ormEndMarker,
+                newBlock = ormBlockHtml,
+            )
 
-        val contentStart = startIndex + startMarker.length
-        val contentEnd = endIndex
+        val tableBlockWrapped = tableHtml.trimIndent()
 
-        val before = original.take(contentStart)
-        val after = original.substring(contentEnd)
+        updated =
+            replaceBetween(
+                source = updated,
+                startMarker = tableStartMarker,
+                endMarker = tableEndMarker,
+                newBlock = tableBlockWrapped,
+            )
 
-        val newContent =
-            buildString {
-                append(before)
-                appendLine()
-                appendLine()
-                append(tableHtml.trimEnd())
-                appendLine()
-                append(after)
-            }
+        docFile.writeText(updated)
 
-        docFile.writeText(newContent)
-
-        logger.lifecycle("Updated benchmark doc with HTML table: ${docFile.path}")
+        logger.lifecycle("Updated benchmark doc with ORM versions and HTML table: ${docFile.path}")
 
         val rootBenchmarkReports = File(rootProject.projectDir, "benchmark-reports")
 
